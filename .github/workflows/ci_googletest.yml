@@ -2,37 +2,45 @@ name: Build and Test SystemC Project
 
 on:
   push:
-    branches:
-      - main
   pull_request:
 
 jobs:
-  build_test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install build dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake libboost-all-dev python3
+        sudo apt-get install -y build-essential cmake python3 wget
 
     - name: Download SystemC 3.0.2
       run: |
-        curl -L -o systemc-3.0.2.tar.gz https://github.com/Accellera-Offcial/systemc/releases/download/v3.0.2/systemc-3.0.2.tar.gz
+        curl -L -o systemc-3.0.2.tar.xz https://github.com/Accellera-Offcial/systemc/releases/download/v3.0.2/systemc-3.0.2.tar.xz
 
-    - name: Extract and install SystemC
+    - name: Extract SystemC
+      run: tar -xf systemc-3.0.2.tar.xz
+
+    - name: Build and install SystemC
       run: |
-        tar -xzf systemc-3.0.2.tar.gz
         cd systemc-3.0.2
-        mkdir build && cd build
+        mkdir build
+        cd build
         cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/systemc-install
         make -j$(nproc)
         make install
 
-    - name: Configure and build project
+    - name: Set SystemC environment variables
+      run: |
+        echo "export SYSTEMC_HOME=$HOME/systemc-install" >> $GITHUB_ENV
+        echo "export PATH=$SYSTEMC_HOME/bin:$PATH" >> $GITHUB_ENV
+        echo "export LD_LIBRARY_PATH=$SYSTEMC_HOME/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "export CPLUS_INCLUDE_PATH=$SYSTEMC_HOME/include:$CPLUS_INCLUDE_PATH" >> $GITHUB_ENV
+
+    - name: Build your SystemC project
       run: |
         mkdir -p build
         cd build
