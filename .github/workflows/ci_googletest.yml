@@ -1,4 +1,4 @@
-name: CI SystemC 3.0.1 Build and Test
+name: SystemC + GoogleTest CI
 
 on:
   push:
@@ -7,43 +7,43 @@ on:
     branches: [ main ]
 
 jobs:
-  build-test:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install prerequisites
+    - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt install -y build-essential cmake libgtest-dev
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake libgtest-dev wget xz-utils
 
     - name: Download SystemC 3.0.1
       run: |
-        wget -O systemc-3.0.1.tar.gz https://accellera.org/images/downloads/standards/systemc/systemc-3.0.1.tar.gz
-
-    - name: Extract SystemC
-      run: |
-        tar -xzf systemc-3.0.1.tar.gz
-        mv systemc-3.0.1 systemc
+        wget https://deb.debian.org/debian/pool/main/s/systemc/systemc_3.0.1.orig.tar.xz
+        tar -xf systemc_3.0.1.orig.tar.xz
 
     - name: Build and install SystemC
       run: |
-        mkdir -p systemc/build
-        cd systemc/build
-        ../configure --prefix=$HOME/systemc-3.0.1-install
+        cd systemc-3.0.1
+        mkdir build && cd build
+        ../configure --prefix=$HOME/systemc-install
         make -j$(nproc)
         make install
 
-    - name: Configure and build your project with SystemC
+    - name: Configure CMake Project
       run: |
         mkdir -p build
         cd build
-        cmake .. -DSYSTEMC_HOME=$HOME/systemc-3.0.1-install
-        make -j$(nproc)
+        cmake .. -DSYSTEMC_HOME=$HOME/systemc-install
 
-    - name: Run tests
+    - name: Build project
       run: |
         cd build
-        ctest --output-on-failure
+        make -j$(nproc)
+
+    - name: Run Stage1 Tests
+      run: |
+        cd build
+        ./test_stage1
