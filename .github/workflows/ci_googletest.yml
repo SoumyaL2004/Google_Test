@@ -15,14 +15,15 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake python3 curl
+        sudo apt-get install -y build-essential cmake python3 wget
 
-    - name: Download SystemC 3.0.2
+    - name: Download SystemC 3.0.2 (official tar.gz)
       run: |
-        curl -L -o systemc-3.0.2.tar.gz https://github.com/accellera-official/systemc/archive/refs/tags/3.0.2.tar.gz
+        wget https://github.com/accellera-official/systemc/releases/download/3.0.2/systemc-3.0.2.tar.gz
 
     - name: Extract SystemC
-      run: tar -xzf systemc-3.0.2.tar.gz
+      run: |
+        tar -xzf systemc-3.0.2.tar.gz
 
     - name: Build and install SystemC
       run: |
@@ -36,9 +37,8 @@ jobs:
     - name: Set SystemC environment variables
       run: |
         echo "SYSTEMC_HOME=$HOME/systemc-install" >> $GITHUB_ENV
-        echo "PATH=$HOME/systemc-install/bin:$PATH" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=$HOME/systemc-install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-        echo "CPLUS_INCLUDE_PATH=$HOME/systemc-install/include:$CPLUS_INCLUDE_PATH" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=$HOME/systemc-install/lib:\$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "CPLUS_INCLUDE_PATH=$HOME/systemc-install/include:\$CPLUS_INCLUDE_PATH" >> $GITHUB_ENV
 
     - name: Build your SystemC project
       run: |
