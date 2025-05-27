@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/test_stage1.dir/tests/test_stage1.cpp.o CMakeFiles/test_stage1.dir/src/pipe/stage1.cpp.o -o test_stage1  -lgtest -lgtest_main -lsystemc 

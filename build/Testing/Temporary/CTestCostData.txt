@@ -1,0 +1,4 @@
+test_simple_fifo 3 0.0188464
+test_stage1 0 0
+---
+test_stage1
