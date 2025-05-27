@@ -1,53 +1,52 @@
-name: Build and Test with SystemC 3.0.1 and GoogleTest
+name: Build and Test SystemC Project
 
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout your repository
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step 2: Install required tools
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake libgtest-dev
+        sudo apt-get install -y build-essential cmake python3 wget
 
-    # Step 3: Clone and build SystemC 3.0.1 (skip docs)
-    - name: Clone and build SystemC
+    - name: Download SystemC 3.0.2
       run: |
-        git clone https://github.com/accellera-official/systemc.git systemc-3.0.1
-        cd systemc-3.0.1
-        git checkout 3.0.1
-        mkdir build install
+        curl -L -o systemc-3.0.2.tar.xz https://github.com/Accellera-Offcial/systemc/releases/download/v3.0.2/systemc-3.0.2.tar.xz
+
+    - name: Extract SystemC
+      run: tar -xf systemc-3.0.2.tar.xz
+
+    - name: Build and install SystemC
+      run: |
+        cd systemc-3.0.2
+        mkdir build
         cd build
-        ../configure --prefix=$(pwd)/../install --disable-documentation
+        cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/systemc-install
         make -j$(nproc)
         make install
 
-    # Step 4: Set environment variables
-    - name: Set environment variables
+    - name: Set SystemC environment variables
       run: |
-        echo "SYSTEMC_HOME=$GITHUB_WORKSPACE/systemc-3.0.1/install" >> $GITHUB_ENV
-        echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/systemc-3.0.1/install/lib-linux64:\$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "export SYSTEMC_HOME=$HOME/systemc-install" >> $GITHUB_ENV
+        echo "export PATH=$SYSTEMC_HOME/bin:$PATH" >> $GITHUB_ENV
+        echo "export LD_LIBRARY_PATH=$SYSTEMC_HOME/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "export CPLUS_INCLUDE_PATH=$SYSTEMC_HOME/include:$CPLUS_INCLUDE_PATH" >> $GITHUB_ENV
 
-    # Step 5: Build your project using CMake
-    - name: Configure and build your SystemC project
+    - name: Build your SystemC project
       run: |
         mkdir -p build
         cd build
-        cmake .. -DSYSTEMC_HOME=$SYSTEMC_HOME
+        cmake .. -DSYSTEMC_HOME=$HOME/systemc-install
         make -j$(nproc)
 
-    # Step 6: Run your unit tests using CTest
     - name: Run tests
       run: |
         cd build
