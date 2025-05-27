@@ -17,7 +17,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake python3 wget
 
-    - name: Download SystemC 3.0.2 (official tar.gz)
+    - name: Download SystemC 3.0.2 (correct .tar.gz from Releases)
       run: |
         wget https://github.com/accellera-official/systemc/releases/download/3.0.2/systemc-3.0.2.tar.gz
 
