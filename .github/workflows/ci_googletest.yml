@@ -15,7 +15,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake python3 wget
+        sudo apt-get install -y build-essential cmake python3 curl
 
     - name: Download SystemC 3.0.2
       run: |
@@ -35,10 +35,10 @@ jobs:
 
     - name: Set SystemC environment variables
       run: |
-        echo "export SYSTEMC_HOME=$HOME/systemc-install" >> $GITHUB_ENV
-        echo "export PATH=$SYSTEMC_HOME/bin:$PATH" >> $GITHUB_ENV
-        echo "export LD_LIBRARY_PATH=$SYSTEMC_HOME/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-        echo "export CPLUS_INCLUDE_PATH=$SYSTEMC_HOME/include:$CPLUS_INCLUDE_PATH" >> $GITHUB_ENV
+        echo "SYSTEMC_HOME=$HOME/systemc-install" >> $GITHUB_ENV
+        echo "PATH=$HOME/systemc-install/bin:$PATH" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=$HOME/systemc-install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "CPLUS_INCLUDE_PATH=$HOME/systemc-install/include:$CPLUS_INCLUDE_PATH" >> $GITHUB_ENV
 
     - name: Build your SystemC project
       run: |
