@@ -1,4 +1,4 @@
-name: CI - SystemC 3.0.1 Build & Test
+name: CI SystemC 3.0.1 Build and Test
 
 on:
   push:
@@ -7,52 +7,40 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source code
+    - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Install required packages
+    - name: Install prerequisites
       run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake g++ wget
+        sudo apt update
+        sudo apt install -y build-essential cmake libgtest-dev
 
-    - name: Download SystemC 3.0.1 source
+    - name: Download SystemC 3.0.1
       run: |
-        wget -O systemc-3.0.1.tar.gz https://your-server-or-github-release-url/systemc-3.0.1.tar.gz
+        wget -O systemc-3.0.1.tar.gz https://accellera.org/images/downloads/standards/systemc/systemc-3.0.1.tar.gz
 
-    - name: Extract SystemC 3.0.1
+    - name: Extract SystemC
       run: |
         tar -xzf systemc-3.0.1.tar.gz
+        mv systemc-3.0.1 systemc
 
-    - name: Build and install SystemC 3.0.1
+    - name: Build and install SystemC
       run: |
-        cd systemc-3.0.1
-        mkdir -p objdir
-        cd objdir
-        cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/systemc-3.0.1-install
+        mkdir -p systemc/build
+        cd systemc/build
+        ../configure --prefix=$HOME/systemc-3.0.1-install
         make -j$(nproc)
         make install
 
-    - name: Set SystemC environment variables
+    - name: Configure and build your project with SystemC
       run: |
-        echo "export SYSTEMC_HOME=$HOME/systemc-3.0.1-install" >> $GITHUB_ENV
-        echo "export PATH=$HOME/systemc-3.0.1-install/bin:$PATH" >> $GITHUB_ENV
-        echo "export LD_LIBRARY_PATH=$HOME/systemc-3.0.1-install/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-
-    - name: Create build directory
-      run: mkdir -p build
-
-    - name: Configure project with CMake
-      run: |
+        mkdir -p build
         cd build
         cmake .. -DSYSTEMC_HOME=$HOME/systemc-3.0.1-install
-
-    - name: Build project
-      run: |
-        cd build
         make -j$(nproc)
 
     - name: Run tests
