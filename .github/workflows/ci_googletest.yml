@@ -15,19 +15,17 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake python3 wget
+        sudo apt-get install -y build-essential cmake python3 unzip wget
 
-    - name: Download SystemC 3.0.2 (correct .tar.gz from Releases)
+    - name: Download SystemC 3.0.2 (as zip)
       run: |
-        wget https://github.com/accellera-official/systemc/releases/download/3.0.2/systemc-3.0.2.tar.gz
-
-    - name: Extract SystemC
-      run: |
-        tar -xzf systemc-3.0.2.tar.gz
+        wget https://github.com/accellera/systemc/archive/refs/tags/3.0.2.zip -O systemc-3.0.2.zip
+        unzip systemc-3.0.2.zip
+        mv systemc-3.0.2 systemc
 
     - name: Build and install SystemC
       run: |
-        cd systemc-3.0.2
+        cd systemc
         mkdir build
         cd build
         cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/systemc-install
