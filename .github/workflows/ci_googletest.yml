@@ -1,4 +1,4 @@
-name: SystemC + GoogleTest CI
+name: Build and Test with SystemC 3.0.1 and GoogleTest
 
 on:
   push:
@@ -7,43 +7,48 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    # Step 1: Checkout your repository
+    - name: Checkout code
       uses: actions/checkout@v3
 
+    # Step 2: Install required tools
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake libgtest-dev wget xz-utils
+        sudo apt-get install -y build-essential cmake libgtest-dev
 
-    - name: Download SystemC 3.0.1
+    # Step 3: Clone and build SystemC 3.0.1 (skip docs)
+    - name: Clone and build SystemC
       run: |
-        wget https://deb.debian.org/debian/pool/main/s/systemc/systemc_3.0.1.orig.tar.xz
-        tar -xf systemc_3.0.1.orig.tar.xz
-
-    - name: Build and install SystemC
-      run: |
+        git clone https://github.com/accellera-official/systemc.git systemc-3.0.1
         cd systemc-3.0.1
-        mkdir build && cd build
-        ../configure --prefix=$HOME/systemc-install
+        git checkout 3.0.1
+        mkdir build install
+        cd build
+        ../configure --prefix=$(pwd)/../install --disable-documentation
         make -j$(nproc)
         make install
 
-    - name: Configure CMake Project
+    # Step 4: Set environment variables
+    - name: Set environment variables
+      run: |
+        echo "SYSTEMC_HOME=$GITHUB_WORKSPACE/systemc-3.0.1/install" >> $GITHUB_ENV
+        echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/systemc-3.0.1/install/lib-linux64:\$LD_LIBRARY_PATH" >> $GITHUB_ENV
+
+    # Step 5: Build your project using CMake
+    - name: Configure and build your SystemC project
       run: |
         mkdir -p build
         cd build
-        cmake .. -DSYSTEMC_HOME=$HOME/systemc-install
-
-    - name: Build project
-      run: |
-        cd build
+        cmake .. -DSYSTEMC_HOME=$SYSTEMC_HOME
         make -j$(nproc)
 
-    - name: Run Stage1 Tests
+    # Step 6: Run your unit tests using CTest
+    - name: Run tests
       run: |
         cd build
-        ./test_stage1
+        ctest --output-on-failure
