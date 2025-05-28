@@ -1,6 +1,0 @@
-/home/soumya/googletest-env/myproject/build/CMakeFiles/run_fifo_sim.dir
-/home/soumya/googletest-env/myproject/build/CMakeFiles/test_simple_fifo.dir
-/home/soumya/googletest-env/myproject/build/CMakeFiles/test_stage1.dir
-/home/soumya/googletest-env/myproject/build/CMakeFiles/test.dir
-/home/soumya/googletest-env/myproject/build/CMakeFiles/edit_cache.dir
-/home/soumya/googletest-env/myproject/build/CMakeFiles/rebuild_cache.dir

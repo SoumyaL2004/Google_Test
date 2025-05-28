@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/run_fifo_sim.dir/src/simple_fifo/simple_fifo.cpp.o -o run_fifo_sim  -lsystemc 
